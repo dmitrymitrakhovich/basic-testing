@@ -1,5 +1,7 @@
-// Uncomment the code below and write your tests
-// import { readFileAsynchronously, doStuffByTimeout, doStuffByInterval } from '.';
+import { existsSync } from 'fs';
+import { readFile } from 'fs/promises';
+import { readFileAsynchronously, doStuffByTimeout, doStuffByInterval } from '.';
+import { join } from 'path';
 
 describe('doStuffByTimeout', () => {
   beforeAll(() => {
@@ -11,11 +13,31 @@ describe('doStuffByTimeout', () => {
   });
 
   test('should set timeout with provided callback and timeout', () => {
-    // Write your test here
+    jest.spyOn(global, 'setTimeout');
+
+    const cb = jest.fn();
+    const ms = 1000;
+
+    doStuffByTimeout(cb, ms);
+
+    expect(setTimeout).toHaveBeenCalledTimes(1);
+    expect(setTimeout).toHaveBeenCalledWith(cb, ms);
   });
 
   test('should call callback only after timeout', () => {
-    // Write your test here
+    jest.spyOn(global, 'setTimeout');
+
+    const cb = jest.fn();
+    const ms = 1000;
+
+    doStuffByTimeout(cb, ms);
+
+    expect(cb).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(ms);
+
+    expect(setTimeout).toHaveBeenCalledTimes(1);
+    expect(setTimeout).toHaveBeenCalledWith(cb, ms);
   });
 });
 
@@ -29,13 +51,42 @@ describe('doStuffByInterval', () => {
   });
 
   test('should set interval with provided callback and timeout', () => {
-    // Write your test here
+    jest.spyOn(global, 'setInterval');
+
+    const cb = jest.fn();
+    const ms = 1000;
+
+    doStuffByInterval(cb, ms);
+
+    jest.advanceTimersByTime(ms);
+
+    expect(setInterval).toHaveBeenCalledWith(cb, ms);
   });
 
   test('should call callback multiple times after multiple intervals', () => {
-    // Write your test here
+    jest.spyOn(global, 'setInterval');
+
+    const cb = jest.fn();
+    const ms = 1000;
+
+    doStuffByInterval(cb, ms);
+
+    jest.advanceTimersByTime(ms);
+
+    expect(setInterval).toHaveBeenCalledTimes(1);
+    expect(setInterval).toHaveBeenCalledWith(cb, ms);
+
+    doStuffByInterval(cb, ms);
+
+    jest.advanceTimersByTime(ms);
+
+    expect(setInterval).toHaveBeenCalledTimes(2);
+    expect(setInterval).toHaveBeenCalledWith(cb, ms);
   });
 });
+
+jest.mock('fs');
+jest.mock('fs/promises');
 
 describe('readFileAsynchronously', () => {
   test('should call join with pathToFile', async () => {
